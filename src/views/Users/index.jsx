@@ -18,6 +18,7 @@ import AlertDialog from '../../components/AlertDialog';
 import LoadingIconButton from '../../components/LoadingIconButton';
 import { SNACKBAR_OPEN } from '../../store/actions';
 import { ERROR_MESSAGE } from '../../constants/messages';
+import TableLoader from '../../components/TableLoader';
 
 const useStyles = makeStyles(() => ({
     userListTable: {
@@ -27,7 +28,9 @@ const useStyles = makeStyles(() => ({
 
 const Users = () => {
     const classes = useStyles();
-    const [{ data }, getAdminUsers] = useHttp('GET', API_ENDPOINTS.ADMIN_USERS);
+    const [{ data, isLoading }, getAdminUsers] = useHttp({
+        url: API_ENDPOINTS.ADMIN_USERS,
+    });
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
     const [adminUser, setAdminUser] = useState(null);
@@ -37,7 +40,10 @@ const Users = () => {
         {
             isLoading: isLoadingDelete,
         },
-        deleteAdminUser] = useHttp('DELETE', API_ENDPOINTS.ADMIN_USERS, null, true);
+        deleteAdminUser] = useHttp({
+        method: 'DELETE',
+        url: API_ENDPOINTS.ADMIN_USERS,
+    }, { manual: true });
     const tableOptions = {
         ...defaultTableOptions,
         selectableRows: 'none',
@@ -184,7 +190,12 @@ const Users = () => {
                 </Grid>
             </Grid>
 
-            <MUIDataTable title='Usuarios'
+            <MUIDataTable title={
+                <Typography variant='h6'>
+                    Usuarios
+                    { isLoading && <TableLoader /> }
+                </Typography>
+            }
                           data={ data || [] }
                           columns={ columns }
                           options={ tableOptions }

@@ -4,12 +4,13 @@ import {
     Card,
     CardContent,
     CardHeader,
-    Divider, FormHelperText,
+    Divider,
+    FormHelperText,
     Grid,
+    IconButton,
+    InputAdornment,
     TextField,
     Typography,
-    InputAdornment,
-    IconButton
 } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
@@ -33,8 +34,10 @@ const SecurityTab = () => {
     const dispatch = useDispatch();
     const userId = getUserIdFromToken();
     const [showPassword, setShowPassword] = useState(false);
-    const [, updatePassword] = useHttp('PATCH', `${API_ENDPOINTS.ADMIN_USERS}/${userId}/password`, null, true);
-
+    const [, updatePassword] = useHttp({
+        method: 'PATCH',
+        url: `${ API_ENDPOINTS.ADMIN_USERS }/${ userId }/password`,
+    }, { manual: true });
 
     const defaultValues = {
         password: '',
@@ -58,7 +61,6 @@ const SecurityTab = () => {
             confirmPassword: Yup.string().max(255).required('La confirmación de contraseña es requerida').oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir'),
         }),
         onSubmit: async (body, { setErrors, setStatus, setSubmitting }) => {
-
             try {
                 await updatePassword({ body });
 

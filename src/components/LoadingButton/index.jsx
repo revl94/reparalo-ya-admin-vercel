@@ -6,23 +6,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
     button: {
-        margin: theme.spacing.unit,
-        paddingLeft: theme.spacing.unit,
+        paddingLeft: theme.spacing(1),
     },
     circularProgress: {
         marginLeft: 0,
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
 });
 
 function LoadingButton({ classes, loading, startIcon, children, ...rest }) {
     return (
-        <div>
             <Button { ...rest } className={ classes.button } startIcon={ !loading ? startIcon : null }>
                 { loading && <CircularProgress className={ classes.circularProgress } size={ 20 } /> }
                 { children }
             </Button>
-        </div>
     );
 }
 

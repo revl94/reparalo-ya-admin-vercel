@@ -48,8 +48,14 @@ const UserForm = ({
     const classes = useStyles();
     const scriptedRef = useScriptRef();
     const dispatch = useDispatch();
-    const [, createAdminUser] = useHttp('POST', API_ENDPOINTS.ADMIN_USERS, null, true);
-    const [, updateAdminUser] = useHttp('PUT', `${ API_ENDPOINTS.ADMIN_USERS }/${ adminUser?.id }`, null, true);
+    const [, createAdminUser] = useHttp({
+        method: 'POST',
+        url: API_ENDPOINTS.ADMIN_USERS,
+    }, { manual: true });
+    const [, updateAdminUser] = useHttp({
+        method: 'PUT',
+        url: `${ API_ENDPOINTS.ADMIN_USERS }/${ adminUser?.id }`,
+    }, { manual: true });
     const {
         values,
         errors,

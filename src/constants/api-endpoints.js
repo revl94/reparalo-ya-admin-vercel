@@ -6,6 +6,7 @@ const API_ENDPOINTS = {
     SERVICES: '/services',
     DISABLE_ENABLE_SERVICE: 'services/:serviceId/disabled',
     DISABLE_ENABLE_CATEGORY: 'services/:serviceId/categories/:categoryId/disabled',
+    SERVICE_REQUESTS: '/service-requests',
 };
 
 export default API_ENDPOINTS;

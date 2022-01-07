@@ -40,18 +40,7 @@ const Header = ({ drawerToggle }) => {
     return (
         <>
             <Box width={ drawerWidth }>
-                <Grid container justifyContent='space-between' alignItems='center'>
-                    <Hidden smDown>
-                        <Grid item>
-                            <Box mt={ 0.5 }>
-                                {/* <img src={ logo } alt='Logo' /> */ }
-                                <Typography className={ classes.logoColor }
-                                            gutterBottom variant='h4'>
-                                    ReparaloYa
-                                </Typography>
-                            </Box>
-                        </Grid>
-                    </Hidden>
+                <Grid container alignItems='center'>
                     <Grid item>
                         <IconButton
                             edge='start'
@@ -63,6 +52,20 @@ const Header = ({ drawerToggle }) => {
                             <MenuTwoToneIcon className={ classes.menuIcon } />
                         </IconButton>
                     </Grid>
+                    <Hidden smDown>
+                        <Grid item>
+                            <Box mt={ 0.5 }>
+                                {/* <img src={ logo } alt='Logo' style={{
+                                    width: 50,
+                                    height: 50
+                                }}/> */ }
+                                <Typography className={ classes.logoColor }
+                                            gutterBottom variant='h4'>
+                                    ReparaloYa
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    </Hidden>
                 </Grid>
             </Box>
             <div className={ classes.grow } />

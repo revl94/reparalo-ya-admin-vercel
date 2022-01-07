@@ -13,6 +13,7 @@ import RestorePassword from './views/RestorePassword';
 import Users from './views/Users';
 import Account from './views/Account';
 import Services from './views/Services';
+import ServiceRequests from './views/ServiceRequests';
 
 const Routes = () => {
     const location = useLocation();
@@ -58,6 +59,7 @@ const Routes = () => {
                             '/users',
                             '/user/account',
                             '/services',
+                            '/service-requests',
                         ] }
                     >
                         <MainLayout>
@@ -68,6 +70,7 @@ const Routes = () => {
                                         <Route path='/users' component={ Users } />
                                         <Route path="/user/account" component={Account} />
                                         <Route path='/services' component={ Services } />
+                                        <Route path='/service-requests' component={ ServiceRequests } />
                                     </AuthGuard>
                                 </NavMotion>
                             </Switch>

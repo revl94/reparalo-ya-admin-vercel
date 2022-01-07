@@ -1,3 +1,5 @@
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from './constant';
+
 export const textLabels = {
     body: {
         noMatch: 'No se encontraron datos',
@@ -38,7 +40,8 @@ export const defaultTableOptions = {
     print: false,
     responsive: 'vertical',
     textLabels,
-    rowsPerPage: 10,
+    rowsPerPage: DEFAULT_PAGE_SIZE,
+    page: DEFAULT_PAGE,
     selectableRows: 'single',
     rowsPerPageOptions: [5, 10, 20, 25, 50],
 };

@@ -36,12 +36,10 @@ const ServiceDialog = ({
                            fetchServices,
                        }) => {
     const classes = useStyles();
-    const [
-        {
-            isLoading: isLoadingToggleEnable,
-        },
-        toggleEnableCategory,
-    ] = useHttp('PATCH', API_ENDPOINTS.SERVICES, null, true);
+    const [{ isLoading: isLoadingToggleEnable }, updateEnableCategory] = useHttp({
+        method: 'PATCH',
+        url: API_ENDPOINTS.SERVICES,
+    }, { manual: true });
     const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
     const [toggleEnable, setToggleEnable] = useState(null);
     const [toggleEnableDialogContent, setToggleEnableDialogContent] = useState({
@@ -67,9 +65,11 @@ const ServiceDialog = ({
 
         if (response) {
             try {
-                await toggleEnableCategory(
+                await updateEnableCategory(
                     {
-                        url: API_ENDPOINTS.DISABLE_ENABLE_CATEGORY.replace(':serviceId', service.id.toString()).replace(':categoryId', toggleEnable.id),
+                        url: API_ENDPOINTS.DISABLE_ENABLE_CATEGORY
+                            .replace(':serviceId', service.id.toString())
+                            .replace(':categoryId', toggleEnable.id),
                     },
                 );
 

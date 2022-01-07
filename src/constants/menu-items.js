@@ -33,6 +33,7 @@ import SpeakerNotesOutlinedIcon from '@material-ui/icons/SpeakerNotesOutlined';
 import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
 import HourglassEmptyRoundedIcon from '@material-ui/icons/HourglassEmptyRounded';
 import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import MonetizationOnOutlinedIcon from '@material-ui/icons/MonetizationOnOutlined';
 import SecurityOutlinedIcon from '@material-ui/icons/SecurityOutlined';
 import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined';
@@ -83,7 +84,8 @@ const icons = {
     TranslateIcon,
     FormatListNumberedRtlIcon,
     EventNoteIcon,
-    VisibilityIcon
+    VisibilityIcon,
+    AssignmentIcon,
 };
 
 export default {
@@ -132,6 +134,13 @@ export default {
                     type: 'item',
                     icon: icons.LocalLaundryServiceIcon,
                     url: '/services',
+                },
+                {
+                    id: 'service-requests',
+                    title: 'Solicitudes',
+                    type: 'item',
+                    icon: icons.AssignmentIcon,
+                    url: '/service-requests',
                 },
             ],
         },
@@ -639,7 +648,7 @@ export default {
                     children: [
                         {
                             id: 'sample-page',
-                            title: 'Sample Page',
+                            title: 'Sample DocumentPage',
                             type: 'item',
                             url: '/sample-page',
                             icon: icons.ChromeReaderModeOutlinedIcon,

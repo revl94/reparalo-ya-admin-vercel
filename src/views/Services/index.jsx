@@ -16,6 +16,7 @@ import LoadingIconButton from '../../components/LoadingIconButton';
 import { SNACKBAR_OPEN } from '../../store/actions';
 import { ERROR_MESSAGE } from '../../constants/messages';
 import ServiceDialog from './ServiceDialog';
+import TableLoader from '../../components/TableLoader';
 
 const useStyles = makeStyles(() => ({
     userListTable: {
@@ -26,15 +27,13 @@ const useStyles = makeStyles(() => ({
 const Services = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const [{ data = [] }, getServices] = useHttp('GET', API_ENDPOINTS.SERVICES);
+    const [{ data = [], isLoading }, getServices] = useHttp({ url: API_ENDPOINTS.SERVICES });
     const [service, setService] = useState(null);
     const [open, setOpen] = useState(false);
-    const [
-        {
-            isLoading: isLoadingToggleEnable,
-        },
-        toggleEnableService,
-    ] = useHttp('PATCH', API_ENDPOINTS.SERVICES, null, true);
+    const [{ isLoading: isLoadingToggleEnable }, toggleEnableService] = useHttp({
+        method: 'PATCH',
+        url: API_ENDPOINTS.SERVICES,
+    }, { manual: true });
     const [toggleEnable, setToggleEnable] = useState(null);
     const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
     const [toggleEnableDialogContent, setToggleEnableDialogContent] = useState({
@@ -43,7 +42,7 @@ const Services = () => {
     });
     const tableOptions = {
         ...defaultTableOptions,
-        selectableRows: false,
+        selectableRows: 'none',
     };
 
     const handleClickOpenDialog = (selectedService) => {
@@ -185,7 +184,12 @@ const Services = () => {
                            fetchServices={ async () => getServices() }
             />
 
-            <MUIDataTable title='Servicios'
+            <MUIDataTable title={
+                <Typography variant='h6'>
+                    Servicios
+                    { isLoading && <TableLoader /> }
+                </Typography>
+            }
                           data={ data || [] }
                           columns={ columns }
                           options={ tableOptions }

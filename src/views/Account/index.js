@@ -1,12 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link as ReactRouter } from 'react-router-dom';
-import {
-    Typography,
-    Tabs,
-    Tab,
-    Box,
-} from '@material-ui/core';
+import { Box, Tab, Tabs, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Breadcrumb from '../../components/Breadcrumb';
 import ProfileTab from './ProfileTab';
@@ -75,8 +70,8 @@ function a11yProps(index) {
 
 const Account = () => {
     const classes = useStyles();
+    const [value, setValue] = useState(0);
 
-    const [value, setValue] = React.useState(0);
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };

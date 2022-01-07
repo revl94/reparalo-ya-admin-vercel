@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import http from '../utils/axios';
 
-const useHttp = (method, url, body = {}, manual = false) => {
-    const [isLoading, setIsLoading] = useState(false);
+const useHttp = (
+    initialRequestParams = {
+        method: 'GET',
+        url: '',
+        body: {},
+        params: {},
+    },
+    configOptions = { manual: false },
+) => {
     const [data, setData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const fetchData = async (request = null) => {
         setIsLoading(true);
+        const { method, url, body, params } = initialRequestParams;
+
         try {
             let resp;
 
@@ -16,11 +26,13 @@ const useHttp = (method, url, body = {}, manual = false) => {
                     method: request?.method || method,
                     url: request?.url || url,
                     data: request?.body || body,
+                    params: request?.params || params,
                 });
             } else {
                 resp = await http({
                     method: request?.method || method,
                     url: request?.url || url,
+                    params: request?.params || params,
                 });
             }
 
@@ -33,12 +45,13 @@ const useHttp = (method, url, body = {}, manual = false) => {
             setError(e);
             setData(null);
             setIsLoading(false);
-            throw Error(e);
+            console.error(e);
+            return null;
         }
     };
 
     useEffect(() => {
-        if (!manual) {
+        if (!configOptions.manual) {
             fetchData();
         }
     }, []);
