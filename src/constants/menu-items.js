@@ -41,6 +41,7 @@ import TranslateIcon from '@material-ui/icons/Translate';
 import FormatListNumberedRtlIcon from '@material-ui/icons/FormatListNumberedRtl';
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 
 const icons = {
     NavigationOutlinedIcon,
@@ -86,6 +87,7 @@ const icons = {
     EventNoteIcon,
     VisibilityIcon,
     AssignmentIcon,
+    LocalOfferIcon,
 };
 
 export default {
@@ -141,6 +143,13 @@ export default {
                     type: 'item',
                     icon: icons.AssignmentIcon,
                     url: '/service-requests',
+                },
+                {
+                    id: 'categories-discounts',
+                    title: 'Descuentos',
+                    type: 'item',
+                    icon: icons.LocalOfferIcon,
+                    url: '/categories-discounts',
                 },
             ],
         },

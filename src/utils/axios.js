@@ -25,7 +25,14 @@ http.interceptors.request.use(
 
 http.interceptors.response.use(
     (response) => response,
-    (error) => Promise.reject((error.response && error.response.data) || 'Wrong Services'),
+    (error) => {
+        const status = error.response?.status || 500;
+        if (status === 401) {
+            window.location.href = '/login';
+        } else {
+           throw Error(error);
+        }
+    },
 );
 
 export default http;

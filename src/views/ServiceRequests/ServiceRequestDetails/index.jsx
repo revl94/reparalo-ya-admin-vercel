@@ -9,7 +9,7 @@ import {
     MenuItem,
     Select,
 } from '@material-ui/core';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { useFormik } from 'formik';
@@ -53,6 +53,7 @@ const ServiceRequestDetails = ({
     const classes = useStyles();
     const dispatch = useDispatch();
     const scriptedRef = useScriptRef();
+    const [mustGetUsers, setMustGetUsers] = useState(false);
     const [{ isLoading }, updateStatus] = useHttp({
         method: 'PATCH',
         url: `${ API_ENDPOINTS.SERVICE_REQUESTS }/${ serviceRequest?.id }/status`,
@@ -81,6 +82,8 @@ const ServiceRequestDetails = ({
                     message: `Estatus de la solicitud actualizado con éxito`,
                 });
 
+                setMustGetUsers(true);
+
                 if (scriptedRef.current) {
                     setStatus({ success: true });
                     setSubmitting(false);
@@ -106,7 +109,7 @@ const ServiceRequestDetails = ({
 
     return (
         <SideBarDialog open={ open }
-                       handleCloseDialog={ () => handleCloseDialog() }
+                       handleCloseDialog={ () => handleCloseDialog(mustGetUsers) }
                        dialogClass={ classes.dialog }>
             <DialogTitle>Solicitud #{ addLeadingZeros(serviceRequest?.requestNumber) }</DialogTitle>
             <DialogContent>
@@ -213,25 +216,28 @@ const ServiceRequestDetails = ({
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <PDFDownloadLink
-                    document={ <DocumentPage serviceRequest={ serviceRequest } /> }
-                    fileName={ `solicitud-${ addLeadingZeros(serviceRequest?.requestNumber) }` }
-                    style={ {
-                        textDecoration: 'none',
-                    } }
-                >
-                    { ({ loading }) =>
-                        <LoadingButton variant='contained'
-                                       type='submit'
-                                       color='primary'
-                                       loading={ loading }
-                                       disabled={ loading }>
-                            Descargar en PDF
-                        </LoadingButton>
-                    }
+                {
+                    serviceRequest &&
+                    <PDFDownloadLink
+                        document={ <DocumentPage serviceRequest={ serviceRequest } /> }
+                        fileName={ `solicitud-${ addLeadingZeros(serviceRequest?.requestNumber) }` }
+                        style={ {
+                            textDecoration: 'none',
+                        } }
+                    >
+                        { ({ loading }) =>
+                            <LoadingButton variant='contained'
+                                           type='submit'
+                                           color='primary'
+                                           loading={ loading }
+                                           disabled={ loading }>
+                                Descargar en PDF
+                            </LoadingButton>
+                        }
 
-                </PDFDownloadLink>
-                <Button variant='text' onClick={ () => handleCloseDialog() } color='primary'>
+                    </PDFDownloadLink>
+                }
+                <Button variant='text' onClick={ () => handleCloseDialog(mustGetUsers) } color='primary'>
                     Cerrar
                 </Button>
             </DialogActions>

@@ -17,6 +17,7 @@ const useHttp = (
     const fetchData = async (request = null) => {
         setIsLoading(true);
         const { method, url, body, params } = initialRequestParams;
+        console.log(body);
 
         try {
             let resp;
@@ -45,8 +46,7 @@ const useHttp = (
             setError(e);
             setData(null);
             setIsLoading(false);
-            console.error(e);
-            return null;
+            throw Error(e);
         }
     };
 

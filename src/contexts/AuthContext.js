@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         const adminUserId = jwtDecode((localStorage.getItem('access_token'))).id
-        await http.post(`admin-users/${adminUserId}/logout`);
+        await http.patch(`admin-users/${ adminUserId }/logout`);
         setSession(null);
         dispatch({ type: LOGOUT });
     };

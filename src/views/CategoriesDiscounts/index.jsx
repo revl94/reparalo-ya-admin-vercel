@@ -1,21 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import MUIDataTable from 'mui-datatables';
-import { FormControl, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import { Fab, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import EventTwoToneIcon from '@material-ui/icons/EventTwoTone';
 import { es } from 'date-fns/locale';
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditTwoToneIcon from '@material-ui/icons/EditTwoTone';
+import { useDispatch } from 'react-redux';
 import Breadcrumb from '../../components/Breadcrumb';
 import useHttp from '../../hooks/useHttp';
 import API_ENDPOINTS from '../../constants/api-endpoints';
 import { defaultTableOptions } from '../../constants/tables';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../constants/constant';
-import translateServiceRequestStatus from '../../utils/translate-service-request-status';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, gridSpacing } from '../../constants/constant';
 import formatDate from '../../utils/format-date';
 import TableLoader from '../../components/TableLoader';
-import ServiceRequestDetails from './ServiceRequestDetails';
+import LoadingIconButton from '../../components/LoadingIconButton';
+import AlertDialog from '../../components/AlertDialog';
+import DiscountForm from './DiscountForm';
+import { SNACKBAR_OPEN } from '../../store/actions';
+import { ERROR_MESSAGE } from '../../constants/messages';
 
 const useStyles = makeStyles(() => ({
     table: {
@@ -29,16 +36,14 @@ const DEFAULT_SORT_ORDER = {
 };
 
 const INITIAL_FILTER_VALUES = {
-    service: null,
     category: null,
-    status: null,
     startDate: null,
     endDate: null,
 };
 
-const ServiceRequests = () => {
+const CategoriesDiscounts = () => {
     const classes = useStyles();
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [requestParams, setRequestParams] = useState({
         page: DEFAULT_PAGE,
         size: DEFAULT_PAGE_SIZE,
@@ -46,32 +51,70 @@ const ServiceRequests = () => {
         orderDirection: DEFAULT_SORT_ORDER.direction.toUpperCase(),
         ...INITIAL_FILTER_VALUES,
     });
-    const [{ data, isLoading }, getServiceRequests] = useHttp({
-        url: API_ENDPOINTS.SERVICE_REQUESTS,
+    const [{ data, isLoading }, getCategoriesDiscounts] = useHttp({
+        url: API_ENDPOINTS.CATEGORIES_DISCOUNTS,
         params: requestParams,
     }, { manual: true });
+    const [{ isLoading: isLoadingDelete }, deleteDiscount] = useHttp(
+        { method: 'DELETE', url: API_ENDPOINTS.CATEGORIES_DISCOUNTS },
+        { manual: true },
+    );
     const [{ data: services = [] }] = useHttp({
         url: API_ENDPOINTS.SERVICES,
         params: { enable: true },
     });
-    const [serviceRequest, setServiceRequest] = useState(null);
+    const [deleteId, setDeleteId] = useState(null);
+    const [categoryDiscount, setCategoryDiscount] = useState(null);
     const [open, setOpen] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [resetCategories, setResetCategories] = useState(true);
+    const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
 
     const handleClickOpenDialog = (selectedServiceRequest) => {
-        setServiceRequest(selectedServiceRequest);
+        setCategoryDiscount(selectedServiceRequest);
         setOpen(true);
     };
 
-    const handleCloseDialog = async (mustGetUsers) => {
-        if (mustGetUsers) {
-            await getServiceRequests({
+    const handleCloseDialog = async (mustGetDiscounts) => {
+        if (mustGetDiscounts) {
+            await getCategoriesDiscounts({
                 params: requestParams,
             });
         }
-        setServiceRequest(null);
+        setCategoryDiscount(null);
         setOpen(false);
+    };
+
+    const handleDeleteDiscount = async (id) => {
+        setDeleteId(id);
+        setOpenConfirmationDialog(true);
+    };
+
+    const handleCloseConfirmationDialog = async (response) => {
+        setOpenConfirmationDialog(false);
+        if (response) {
+            try {
+                await deleteDiscount({ url: `${ API_ENDPOINTS.CATEGORIES_DISCOUNTS }/${ deleteId }` });
+                setDeleteId(null);
+                dispatch({
+                    type: SNACKBAR_OPEN,
+                    open: true,
+                    variant: 'alert',
+                    alertSeverity: 'success',
+                    anchorOrigin: { vertical: 'top', horizontal: 'center' },
+                    message: 'Descuento eliminado con éxito',
+                });
+                await getCategoriesDiscounts();
+            } catch (e) {
+                dispatch({
+                    type: SNACKBAR_OPEN,
+                    open: true,
+                    variant: 'alert',
+                    alertSeverity: 'error',
+                    anchorOrigin: { vertical: 'top', horizontal: 'center' },
+                    message: ERROR_MESSAGE,
+                });
+            }
+        }
     };
 
     const onTableChange = (action, tableState) => {
@@ -98,10 +141,9 @@ const ServiceRequests = () => {
                 });
                 break;
             case 'resetFilters':
-                setResetCategories(true);
                 setRequestParams(prevState => ({
                     ...prevState,
-                    ...INITIAL_FILTER_VALUES
+                    ...INITIAL_FILTER_VALUES,
                 }));
                 break;
             default:
@@ -124,7 +166,6 @@ const ServiceRequests = () => {
                 ...filters,
             }),
         );
-        setResetCategories(!filters.service);
     };
 
     const tableOptions = {
@@ -139,60 +180,11 @@ const ServiceRequests = () => {
         rowsPerPage: requestParams?.size,
         page: requestParams.page,
         setFilterChipProps: () => ({ color: 'primary', variant: 'outlined' }),
-        onRowClick: (_, { dataIndex }) => handleClickOpenDialog(data.content[dataIndex]),
         onFilterChipClose,
         onTableChange,
     };
 
     const columns = [
-        {
-            name: 'service',
-            label: 'Servicio',
-            options: {
-                filter: true,
-                filterType: 'custom',
-                sort: true,
-                filterOptions: {
-                    fullWidth: false,
-                    display: (filterList, onChange, index, column) => (
-                        <FormControl>
-                            <InputLabel>Servicios</InputLabel>
-                            <Select value={ requestParams?.service || '' }
-                                    onChange={ event => {
-                                        const selectedService = services.find(service => service.id === event.target.value);
-                                        setRequestParams(prevState => ({
-                                            ...prevState,
-                                            service: event.target.value,
-                                        }));
-                                        setCategories([...selectedService.categories]);
-                                        setResetCategories(false);
-                                        // eslint-disable-next-line no-param-reassign
-                                        filterList[index] = [{
-                                            name: column.name,
-                                            chipLabel: selectedService.name,
-                                            value: event.target.value,
-                                        }];
-                                        onChange(filterList[index], index, column);
-                                    } }>
-                                { services.map(service => (
-                                    <MenuItem key={ service.id } value={ service.id }>
-                                        { service.name }
-                                    </MenuItem>
-                                )) }
-                            </Select>
-                        </FormControl>
-                    ),
-                },
-                customFilterListOptions: {
-                    render: (value) => (value[0].chipLabel),
-                    update: (filterList, filterPos, index) => {
-                        filterList[index].splice(filterPos, 1);
-                        return filterList;
-                    },
-                },
-                customBodyRenderLite: (dataIndex) => (data.content[dataIndex].category.service.name),
-            },
-        },
         {
             name: 'category',
             label: 'Categoría',
@@ -201,7 +193,7 @@ const ServiceRequests = () => {
                 filterType: 'custom',
                 sort: true,
                 filterOptions: {
-                    fullWidth: false,
+                    fullWidth: true,
                     display: (filterList, onChange, index, column) => (
                         <FormControl>
                             <InputLabel>Categorías</InputLabel>
@@ -239,84 +231,21 @@ const ServiceRequests = () => {
             },
         },
         {
-            name: 'user',
-            label: 'Usuario',
+            name: 'discountPercentage',
+            label: 'Porcentaje de Descuento',
             options: {
                 filter: false,
                 sort: false,
-                customBodyRenderLite: (dataIndex) => (data.content[dataIndex].user.username),
-            },
-        },
-        {
-            name: 'phoneNumber',
-            label: 'Número de contacto',
-            options: {
-                filter: false,
-                sort: false,
-                customBodyRenderLite: (dataIndex) => (data.content[dataIndex].user.userDetails.phoneNumber),
-            },
-        },
-        {
-            name: 'status',
-            label: 'Estatus de la Solicitud',
-            options: {
-                filter: true,
-                filterType: 'custom',
-                sort: true,
-                filterOptions: {
-                    fullWidth: false,
-                    display: (filterList, onChange, index, column) => (
-                        <FormControl>
-                            <InputLabel>Estatus</InputLabel>
-                            <Select value={ requestParams?.status || '' }
-                                    onChange={ event => {
-                                        setRequestParams(prevState => ({
-                                            ...prevState,
-                                            status: event.target.value,
-                                        }));
-                                        // eslint-disable-next-line no-param-reassign
-                                        filterList[index] = [{
-                                            name: column.name,
-                                            chipLabel: translateServiceRequestStatus(event.target.value),
-                                            value: event.target.value,
-                                        }];
-                                        onChange(filterList[index], index, column);
-                                    } }>
-                                { ['NEW', 'IN_PROCESS', 'RESPONSE_SENT', 'VISIT_MADE'].map(status => (
-                                    <MenuItem key={ status } value={ status }>
-                                        { translateServiceRequestStatus(status) }
-                                    </MenuItem>
-                                )) }
-                            </Select>
-                        </FormControl>
-                    ),
-                },
-                customFilterListOptions: {
-                    render: (value) => (value[0].chipLabel),
-                    update: (filterList, filterPos, index) => {
-                        filterList[index].splice(filterPos, 1);
-                        return filterList;
-                    },
-                },
-                customBodyRenderLite: (dataIndex) => (translateServiceRequestStatus(data.content[dataIndex].status)),
-            },
-        },
-        {
-            name: 'createdAt',
-            label: 'Fecha de Creación',
-            options: {
-                filter: false,
-                sort: true,
-                customBodyRenderLite: (dataIndex) => (formatDate(new Date(data.content[dataIndex].createdAt))),
+                customBodyRenderLite: (dataIndex) => (`${ data.content[dataIndex].discountPercentage }%`),
             },
         },
         {
             name: 'startDate',
+            label: 'Fecha Inicial',
             options: {
-                viewColumns: false,
-                display: false,
                 filter: true,
                 filterType: 'custom',
+                sort: true,
                 filterOptions: {
                     fullWidth: false,
                     display: (filterList, onChange, index, column) => (
@@ -354,15 +283,16 @@ const ServiceRequests = () => {
                         return filterList;
                     },
                 },
+                customBodyRenderLite: (dataIndex) => (formatDate(new Date(`${ data.content[dataIndex].startDate }T04:00:00.000Z`))),
             },
         },
         {
             name: 'endDate',
+            label: 'Fecha Fin',
             options: {
-                viewColumns: false,
-                display: false,
                 filter: true,
                 filterType: 'custom',
+                sort: true,
                 filterOptions: {
                     fullWidth: false,
                     display: (filterList, onChange, index, column) => (
@@ -399,50 +329,94 @@ const ServiceRequests = () => {
                         return filterList;
                     },
                 },
+                customBodyRenderLite: (dataIndex) => (formatDate(new Date(`${ data.content[dataIndex].endDate }T04:00:00.000Z`))),
+            },
+        },
+        {
+            name: 'createdAt',
+            label: 'Fecha de Creación',
+            options: {
+                filter: false,
+                sort: true,
+                customBodyRenderLite: (dataIndex) => (formatDate(new Date(data.content[dataIndex].createdAt))),
+            },
+        },
+        {
+            name: 'edit',
+            label: ' ',
+            options: {
+                filter: false,
+                sort: false,
+                empty: true,
+                customBodyRenderLite: (dataIndex) => (
+                    <IconButton color='secondary' onClick={ () => handleClickOpenDialog(data.content[dataIndex]) }>
+                        <EditTwoToneIcon />
+                    </IconButton>
+                ),
+            },
+        },
+        {
+            name: 'delete',
+            label: ' ',
+            options: {
+                filter: false,
+                sort: false,
+                empty: true,
+                customBodyRenderLite: (dataIndex) => (
+                    <LoadingIconButton color='secondary'
+                                       loading={ isLoadingDelete && deleteId === data.content[dataIndex].id }
+                                       onClick={ () => handleDeleteDiscount(data.content[dataIndex].id) }>
+                        <DeleteIcon />
+                    </LoadingIconButton>
+                ),
             },
         },
     ];
 
     useEffect(() => {
-        getServiceRequests({
+        getCategoriesDiscounts({
             params: requestParams,
         });
     }, [requestParams]);
 
     useEffect(() => {
-        if (resetCategories) {
-            let temporalCategories = [];
-            services?.forEach(service => {
-                temporalCategories = [
-                    ...temporalCategories,
-                    ...service.categories,
-                ];
-            });
-            setCategories([...temporalCategories]);
-        }
-    }, [services, resetCategories]);
+        let temporalCategories = [];
+        services?.forEach(service => {
+            temporalCategories = [
+                ...temporalCategories,
+                ...service.categories,
+            ];
+        });
+        setCategories([...temporalCategories]);
+    }, [services]);
 
     return (
         <>
-            <Breadcrumb title='Solicitudes de Servicio'>
+            <Breadcrumb title='Descuentos a Categorías'>
                 <Typography component={ Link } to='/' variant='subtitle2' color='inherit' className='link-breadcrumb'>
                     Inicio
                 </Typography>
                 <Typography variant='subtitle2' color='primary' className='link-breadcrumb'>
-                    Solicitudes de Servicios
+                    Descuentos a Categorías
                 </Typography>
             </Breadcrumb>
 
-            { open &&
-            <ServiceRequestDetails handleCloseDialog={ handleCloseDialog }
-                                   open={ open }
-                                   serviceRequest={ serviceRequest }
-            />
-            }
+            <Grid container wrap='nowrap' justifyContent='flex-end' spacing={ gridSpacing }>
+                <Grid item>
+                    <Fab color='primary' size='small' onClick={ () => handleClickOpenDialog(null) }>
+                        <AddIcon />
+                    </Fab>
+                    <DiscountForm handleCloseDialog={ handleCloseDialog }
+                                  open={ open }
+                                  categoryDiscount={ categoryDiscount }
+                                  categories={ categories }
+                    />
+                </Grid>
+            </Grid>
 
             <MUIDataTable title={
                 <Typography variant='h6'>
-                    Solicitudes
+                    Descuentos
                     { isLoading && <TableLoader /> }
                 </Typography>
             }
@@ -450,8 +424,15 @@ const ServiceRequests = () => {
                           columns={ columns }
                           options={ tableOptions }
                           className={ classes.table } />
+
+            <AlertDialog open={ openConfirmationDialog }
+                         handleClose={ handleCloseConfirmationDialog }
+                         title='Eliminar descuento'
+                         content='¿Esta seguro que desea eliminar el descuento?'
+                         agreeButtonText='Sí'
+                         disagreeButtonText='No' />
         </>
     );
 };
 
-export default ServiceRequests;
+export default CategoriesDiscounts;
