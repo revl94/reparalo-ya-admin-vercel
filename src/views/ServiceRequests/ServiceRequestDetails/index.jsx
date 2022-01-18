@@ -1,5 +1,6 @@
 import {
     Button,
+    CircularProgress,
     DialogActions,
     DialogContent,
     DialogTitle,
@@ -9,7 +10,7 @@ import {
     MenuItem,
     Select,
 } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { useFormik } from 'formik';
@@ -53,10 +54,13 @@ const ServiceRequestDetails = ({
     const classes = useStyles();
     const dispatch = useDispatch();
     const scriptedRef = useScriptRef();
-    const [mustGetUsers, setMustGetUsers] = useState(false);
+    const [mustFetchAgain, setMustFetchAgain] = useState(false);
     const [{ isLoading }, updateStatus] = useHttp({
         method: 'PATCH',
         url: `${ API_ENDPOINTS.SERVICE_REQUESTS }/${ serviceRequest?.id }/status`,
+    }, { manual: true });
+    const [{ data: discount, isLoading: isLoadingDiscount }, getDiscount] = useHttp({
+        url: `${ API_ENDPOINTS.CATEGORIES_DISCOUNTS }/active/categories/${ serviceRequest?.category?.id }`,
     }, { manual: true });
     const {
         values,
@@ -82,7 +86,7 @@ const ServiceRequestDetails = ({
                     message: `Estatus de la solicitud actualizado con éxito`,
                 });
 
-                setMustGetUsers(true);
+                setMustFetchAgain(true);
 
                 if (scriptedRef.current) {
                     setStatus({ success: true });
@@ -107,9 +111,14 @@ const ServiceRequestDetails = ({
         },
     });
 
+    useEffect(() => {
+        getDiscount();
+    }, [serviceRequest]);
+
+
     return (
         <SideBarDialog open={ open }
-                       handleCloseDialog={ () => handleCloseDialog(mustGetUsers) }
+                       handleCloseDialog={ () => handleCloseDialog(mustFetchAgain) }
                        dialogClass={ classes.dialog }>
             <DialogTitle>Solicitud #{ addLeadingZeros(serviceRequest?.requestNumber) }</DialogTitle>
             <DialogContent>
@@ -164,6 +173,15 @@ const ServiceRequestDetails = ({
                     <Grid item xs={ 12 }>
                         <p>
                             <strong>Categoría:</strong> { serviceRequest?.category?.name }
+                        </p>
+                    </Grid>
+                    <Grid item container xs={ 12 } style={ { marginLeft: 16 } }>
+                        <p>
+                            <strong>Descuento:</strong> {
+                            isLoadingDiscount ?
+                                <CircularProgress size={ 20 } style={ { marginLeft: 8 } } />
+                                : `${ discount ? `${ discount.discountPercentage }%` : 'No tiene descuento.' }`
+                        }
                         </p>
                     </Grid>
                     <Grid item xs={ 12 }>
@@ -237,7 +255,7 @@ const ServiceRequestDetails = ({
 
                     </PDFDownloadLink>
                 }
-                <Button variant='text' onClick={ () => handleCloseDialog(mustGetUsers) } color='primary'>
+                <Button variant='text' onClick={ () => handleCloseDialog(mustFetchAgain) } color='primary'>
                     Cerrar
                 </Button>
             </DialogActions>

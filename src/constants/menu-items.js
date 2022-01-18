@@ -42,6 +42,7 @@ import FormatListNumberedRtlIcon from '@material-ui/icons/FormatListNumberedRtl'
 import EventNoteIcon from '@material-ui/icons/EventNote';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 
 const icons = {
     NavigationOutlinedIcon,
@@ -88,6 +89,7 @@ const icons = {
     VisibilityIcon,
     AssignmentIcon,
     LocalOfferIcon,
+    PeopleAltIcon,
 };
 
 export default {
@@ -138,18 +140,34 @@ export default {
                     url: '/services',
                 },
                 {
-                    id: 'service-requests',
-                    title: 'Solicitudes',
-                    type: 'item',
-                    icon: icons.AssignmentIcon,
-                    url: '/service-requests',
-                },
-                {
                     id: 'categories-discounts',
                     title: 'Descuentos',
                     type: 'item',
                     icon: icons.LocalOfferIcon,
                     url: '/categories-discounts',
+                },
+            ],
+        },
+        {
+            id: 'clients-&-requests',
+            title: 'Clientes y Solicitudes',
+            caption: '',
+            type: 'group',
+            icon: icons.NavigationOutlinedIcon,
+            children: [
+                {
+                    id: 'clients',
+                    title: 'Clientes',
+                    type: 'item',
+                    icon: icons.PeopleAltIcon,
+                    url: '/clients',
+                },
+                {
+                    id: 'service-requests',
+                    title: 'Solicitudes',
+                    type: 'item',
+                    icon: icons.AssignmentIcon,
+                    url: '/service-requests',
                 },
             ],
         },

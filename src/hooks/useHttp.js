@@ -17,7 +17,6 @@ const useHttp = (
     const fetchData = async (request = null) => {
         setIsLoading(true);
         const { method, url, body, params } = initialRequestParams;
-        console.log(body);
 
         try {
             let resp;

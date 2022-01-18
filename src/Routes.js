@@ -15,6 +15,7 @@ import Account from './views/Account';
 import Services from './views/Services';
 import ServiceRequests from './views/ServiceRequests';
 import CategoriesDiscounts from './views/CategoriesDiscounts';
+import Clients from './views/Clients';
 
 const Routes = () => {
     const location = useLocation();
@@ -62,6 +63,7 @@ const Routes = () => {
                             '/services',
                             '/service-requests',
                             '/categories-discounts',
+                            '/clients',
                         ] }
                     >
                         <MainLayout>
@@ -74,6 +76,7 @@ const Routes = () => {
                                         <Route path='/services' component={ Services } />
                                         <Route path='/service-requests' component={ ServiceRequests } />
                                         <Route path='/categories-discounts' component={ CategoriesDiscounts } />
+                                        <Route path='/clients' component={ Clients } />
                                     </AuthGuard>
                                 </NavMotion>
                             </Switch>

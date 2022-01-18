@@ -101,7 +101,6 @@ const DiscountForm = ({
             endDate: Yup.date().required('La fecha final es requerida'),
         }),
         onSubmit: async (body, { setErrors, setStatus, setSubmitting }) => {
-            console.log(body);
             try {
                 if (!categoryDiscount) {
                     await createDiscount({

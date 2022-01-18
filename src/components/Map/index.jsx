@@ -18,7 +18,7 @@ const Map = ({
                  position,
              }) => {
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: process.env.NEXT_GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     });
 
     return (

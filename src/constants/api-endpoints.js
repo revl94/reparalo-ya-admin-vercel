@@ -8,6 +8,7 @@ const API_ENDPOINTS = {
     DISABLE_ENABLE_CATEGORY: 'services/:serviceId/categories/:categoryId/disabled',
     SERVICE_REQUESTS: '/service-requests',
     CATEGORIES_DISCOUNTS: '/categories-discounts',
+    USERS: '/users',
 };
 
 export default API_ENDPOINTS;

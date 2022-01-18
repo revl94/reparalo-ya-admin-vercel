@@ -134,7 +134,6 @@ const ServiceRequests = () => {
         filter: true,
         search: false,
         filterType: 'dropdown',
-        sortOrder: DEFAULT_SORT_ORDER,
         count: data?.total || 0,
         rowsPerPage: requestParams?.size,
         page: requestParams.page,
