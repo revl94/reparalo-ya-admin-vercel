@@ -45,7 +45,7 @@ const useHttp = (
             setError(e);
             setData(null);
             setIsLoading(false);
-            throw Error(e);
+            throw e;
         }
     };
 

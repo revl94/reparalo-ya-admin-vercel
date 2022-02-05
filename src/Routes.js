@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Loader from './components/Loader/Loader';
@@ -16,6 +16,8 @@ import Services from './views/Services';
 import ServiceRequests from './views/ServiceRequests';
 import CategoriesDiscounts from './views/CategoriesDiscounts';
 import Clients from './views/Clients';
+
+const Dashboard = lazy(() => import('./views/Dashboard'));
 
 const Routes = () => {
     const location = useLocation();
@@ -70,7 +72,7 @@ const Routes = () => {
                             <Switch location={ location } key={ location.pathname }>
                                 <NavMotion>
                                     <AuthGuard>
-                                        <Route path='/dashboard' component={ null } />
+                                        <Route path='/dashboard' component={ Dashboard } />
                                         <Route path='/users' component={ Users } />
                                         <Route path="/user/account" component={Account} />
                                         <Route path='/services' component={ Services } />

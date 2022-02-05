@@ -9,6 +9,7 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    Typography,
 } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
@@ -30,6 +31,7 @@ import LoadingButton from '../../../components/LoadingButton';
 import translateServiceRequestStatus from '../../../utils/translate-service-request-status';
 import addLeadingZeros from '../../../utils/add-leading-zeros';
 import DocumentPage from '../../../components/ServiceRequestDocument';
+import SERVICE_REQUEST_STATUS from '../../../constants/service-request-status';
 
 const useStyles = makeStyles(() => ({
     dialog: {
@@ -112,7 +114,9 @@ const ServiceRequestDetails = ({
     });
 
     useEffect(() => {
-        getDiscount();
+        if (serviceRequest) {
+            getDiscount();
+        }
     }, [serviceRequest]);
 
 
@@ -120,46 +124,58 @@ const ServiceRequestDetails = ({
         <SideBarDialog open={ open }
                        handleCloseDialog={ () => handleCloseDialog(mustFetchAgain) }
                        dialogClass={ classes.dialog }>
-            <DialogTitle>Solicitud #{ addLeadingZeros(serviceRequest?.requestNumber) }</DialogTitle>
+            <DialogTitle>
+                <Typography variant='h4' component='p'>
+                    Solicitud #{ addLeadingZeros(serviceRequest?.requestNumber) }
+                </Typography>
+            </DialogTitle>
             <DialogContent>
                 <Grid container>
-                    <Grid item xs={ 12 }>
-                        <form noValidate onSubmit={ handleSubmit }>
-                            <Grid container spacing={ 2 } direction='column'>
-                                <Grid item xs={ 12 }>
-                                    <FormControl fullWidth>
-                                        <InputLabel id='status-label'>Estatus de la Solicitud</InputLabel>
-                                        <Select labelId='status-label'
-                                                id='status'
-                                                label='Estatus de la Solicitud'
-                                                name='status'
-                                                value={ values.status }
-                                                error={ Boolean(touched.status && errors.status) }
-                                                helperText={ touched.status && errors.status }
-                                                onChange={ handleChange }
-                                                onBlur={ handleBlur }
-                                                variant='outlined'>
-                                            { ['NEW', 'IN_PROCESS', 'RESPONSE_SENT', 'VISIT_MADE'].map(option => (
-                                                <MenuItem key={ option } value={ option }>
-                                                    { translateServiceRequestStatus(option) }
-                                                </MenuItem>
-                                            )) }
-                                        </Select>
-                                    </FormControl>
+                    {
+                        ![
+                            SERVICE_REQUEST_STATUS[2],
+                            SERVICE_REQUEST_STATUS[3],
+                            SERVICE_REQUEST_STATUS[8],
+                            SERVICE_REQUEST_STATUS[9],
+                        ].includes(serviceRequest?.status) &&
+                        <Grid item xs={ 12 }>
+                            <form noValidate onSubmit={ handleSubmit }>
+                                <Grid container spacing={ 2 } direction='column'>
+                                    <Grid item xs={ 12 }>
+                                        <FormControl fullWidth>
+                                            <InputLabel id='status-label'>Estatus de la Solicitud</InputLabel>
+                                            <Select labelId='status-label'
+                                                    id='status'
+                                                    label='Estatus de la Solicitud'
+                                                    name='status'
+                                                    value={ values.status }
+                                                    error={ Boolean(touched.status && errors.status) }
+                                                    helperText={ touched.status && errors.status }
+                                                    onChange={ handleChange }
+                                                    onBlur={ handleBlur }
+                                                    variant='outlined'>
+                                                { SERVICE_REQUEST_STATUS.map(option => (
+                                                    <MenuItem key={ option } value={ option }>
+                                                        { translateServiceRequestStatus(option) }
+                                                    </MenuItem>
+                                                )) }
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={ 12 }>
+                                        <LoadingButton variant='contained'
+                                                       type='submit'
+                                                       color='primary'
+                                                       loading={ isSubmitting || isLoading }
+                                                       disabled={ isSubmitting || isLoading }
+                                                       startIcon={ <EditTwoToneIcon /> }>
+                                            Actualizar
+                                        </LoadingButton>
+                                    </Grid>
                                 </Grid>
-                                <Grid item xs={ 12 }>
-                                    <LoadingButton variant='contained'
-                                                   type='submit'
-                                                   color='primary'
-                                                   loading={ isSubmitting || isLoading }
-                                                   disabled={ isSubmitting || isLoading }
-                                                   startIcon={ <EditTwoToneIcon /> }>
-                                        Actualizar
-                                    </LoadingButton>
-                                </Grid>
-                            </Grid>
-                        </form>
-                    </Grid>
+                            </form>
+                        </Grid>
+                    }
                     <Grid item xs={ 12 }>
                         <p>
                             <strong>Fecha de Creación:</strong> { formatDate(new Date(serviceRequest?.createdAt)) }

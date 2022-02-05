@@ -1,13 +1,25 @@
 const translateServiceRequestStatus = (status) => {
     switch (status) {
-        case 'NEW':
-            return 'Nueva Solicitud';
-        case 'IN_PROCESS':
-            return 'En Proceso';
-        case 'RESPONSE_SENT':
-            return 'Respuesta Envíada';
-        case 'VISIT_MADE':
-            return 'Visita Realizada';
+        case 'OPEN':
+            return 'Solicitud Abierta';
+        case 'TECHNICAL_VISIT_SCHEDULED':
+            return 'Visita Técnica Programada';
+        case 'CANCELLED_BY_USER':
+            return 'Cancelada por el Usuario';
+        case 'VISIT_CANCELLED':
+            return 'Visita Cancelada';
+        case 'QUOTING':
+            return 'Por Cotizar';
+        case 'QUOTED':
+            return 'Cotizada';
+        case 'APPROVED':
+            return 'Aprobado';
+        case 'IN_PROGRESS':
+            return 'En Ejecución';
+        case 'CLAIM_DONE':
+            return 'Reclamo Ejecutado';
+        case 'DONE':
+            return 'Ejecutado';
         default:
             return 'N/A';
     }

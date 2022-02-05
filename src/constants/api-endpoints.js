@@ -9,6 +9,11 @@ const API_ENDPOINTS = {
     SERVICE_REQUESTS: '/service-requests',
     CATEGORIES_DISCOUNTS: '/categories-discounts',
     USERS: '/users',
+    SUMMARY: '/statistics/summary',
+    REQUESTS_PER_STATUS: '/statistics/requests-per-status',
+    REQUESTS_GROUP_BY_MONTH: '/statistics/request-by-month',
+    CLIENTS_GROUP_BY_MONTH: '/statistics/clients-by-month',
+    TOP_CATEGORIES: '/statistics/top-categories',
 };
 
 export default API_ENDPOINTS;

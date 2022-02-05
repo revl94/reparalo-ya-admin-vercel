@@ -16,6 +16,7 @@ import translateServiceRequestStatus from '../../utils/translate-service-request
 import formatDate from '../../utils/format-date';
 import TableLoader from '../../components/TableLoader';
 import ServiceRequestDetails from './ServiceRequestDetails';
+import SERVICE_REQUEST_STATUS from '../../constants/service-request-status';
 
 const useStyles = makeStyles(() => ({
     table: {
@@ -38,7 +39,6 @@ const INITIAL_FILTER_VALUES = {
 
 const ServiceRequests = () => {
     const classes = useStyles();
-    // const dispatch = useDispatch();
     const [requestParams, setRequestParams] = useState({
         page: DEFAULT_PAGE,
         size: DEFAULT_PAGE_SIZE,
@@ -101,7 +101,7 @@ const ServiceRequests = () => {
                 setResetCategories(true);
                 setRequestParams(prevState => ({
                     ...prevState,
-                    ...INITIAL_FILTER_VALUES
+                    ...INITIAL_FILTER_VALUES,
                 }));
                 break;
             default:
@@ -281,7 +281,7 @@ const ServiceRequests = () => {
                                         }];
                                         onChange(filterList[index], index, column);
                                     } }>
-                                { ['NEW', 'IN_PROCESS', 'RESPONSE_SENT', 'VISIT_MADE'].map(status => (
+                                { SERVICE_REQUEST_STATUS.map(status => (
                                     <MenuItem key={ status } value={ status }>
                                         { translateServiceRequestStatus(status) }
                                     </MenuItem>

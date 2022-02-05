@@ -1,0 +1,14 @@
+const SERVICE_REQUEST_STATUS = [
+    'OPEN',
+    'TECHNICAL_VISIT_SCHEDULED',
+    'CANCELLED_BY_USER',
+    'VISIT_CANCELLED',
+    'QUOTING',
+    'QUOTED',
+    'APPROVED',
+    'IN_PROGRESS',
+    'CLAIM_DONE',
+    'DONE',
+];
+
+export default SERVICE_REQUEST_STATUS;
